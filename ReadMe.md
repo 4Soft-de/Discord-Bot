@@ -16,5 +16,5 @@ Please note:
 
 ### For group members
 
-Create a `config.properties` under `src/main/resources` and provide
+Create a `config.properties` **on root level** and provide
 the token we give you in the format `token=<here token>`.

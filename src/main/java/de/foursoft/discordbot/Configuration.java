@@ -1,7 +1,13 @@
 package de.foursoft.discordbot;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 import org.slf4j.Logger;
@@ -14,18 +20,32 @@ public class Configuration {
     
     public Configuration(String pathToConfig) {
         properties = new Properties();
-        InputStream resourceStream = ClassLoader.getSystemClassLoader()
-                .getResourceAsStream(pathToConfig);
+        File file = new File(pathToConfig);
+        String absolutePath = file.getAbsolutePath();
+        if (!file.isFile())  {
+            LOGGER.info("Given file does not exist, trying to create it..");
 
-        if (resourceStream == null) {
-            LOGGER.error("Couldn't get configuration file {}", pathToConfig);
+            String content = "token=<here token>";
+            try {
+                Files.write(Paths.get(pathToConfig),
+                            content.getBytes(StandardCharsets.UTF_8));
+
+                LOGGER.info("Wrote initial contents to file {}.", absolutePath);
+            } catch (IOException e) {
+                LOGGER.warn("Failed to write contents to file {}.", absolutePath);
+            }
             System.exit(-1);
         }
 
+        InputStream resourceStream;
         try {
+            resourceStream = new FileInputStream(file);
             properties.load(resourceStream);
+        } catch (FileNotFoundException e) {
+            LOGGER.error("Couldn't get configuration file {}", absolutePath);
+            System.exit(-1);
         } catch (IOException e) {
-            LOGGER.error("Couldn't load configuration file {}", pathToConfig, e);
+            LOGGER.error("Couldn't load configuration file {}", absolutePath, e);
             System.exit(-1);
         }
     }

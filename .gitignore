@@ -1,4 +1,4 @@
-#Gradle
+# Gradle
 .gradle/
 build/
 out/
@@ -9,5 +9,11 @@ out/
 *.ipr
 .idea/sonarIssues.xml
 
+# Eclipse
+bin/
+.project
+.classpath
+.settings/
+
 # Token
-src/main/resources/config.properties
+**/config.properties
