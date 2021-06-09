@@ -1,0 +1,28 @@
+plugins {
+    id'java'
+    id'application'
+    id'com.github.johnrengelman.shadow' version '5.2.0'
+}
+
+group 'de.foursoft'
+mainClassName = 'de.foursoft.discordbot.FourSoftDiscordBot'
+version '1.0'
+
+sourceCompatibility = 1.8
+
+repositories {
+    maven {
+        name 'm2-dv8tion'
+        url 'https://m2.dv8tion.net/releases'
+    }
+    mavenCentral()
+}
+
+dependencies {
+    implementation ('net.dv8tion:JDA:4.2.1_275') {
+        exclude module: 'opus-java'
+    }
+    implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
+}
+
+compileJava.options.encoding = 'UTF-8'

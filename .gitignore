@@ -1,0 +1,13 @@
+#Gradle
+.gradle/
+build/
+out/
+
+# IntelliJ IDEA
+*.iml
+*.iws
+*.ipr
+.idea/sonarIssues.xml
+
+# Token
+src/main/resources/config.properties
