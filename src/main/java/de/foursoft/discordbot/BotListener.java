@@ -1,6 +1,7 @@
 package de.foursoft.discordbot;
 
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -19,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 public class BotListener extends ListenerAdapter {
 
+    private static final Pattern WHITESPACES_PATTERN = Pattern.compile("\\s+");
     private static final Logger LOGGER = LoggerFactory.getLogger(BotListener.class);
     
     private static final String PREFIX = "!";
@@ -34,24 +36,24 @@ public class BotListener extends ListenerAdapter {
         // Mentions will converted to ids, Markdown characters are included
         String contentRaw = message.getContentRaw();
         
-        String logMsg = String.format("%s: %s", user.getAsTag(), contentRaw);
-        LOGGER.info(logMsg);
+        LOGGER.info("{}: {}", user.getAsTag(), contentRaw);
         
         if (!contentRaw.startsWith(PREFIX))  {
             return;
         }
         
         // split at whitespaces
-        String[] args = contentRaw.substring(PREFIX.length()).split("\\s+");
-        
+        final String contentWithoutPrefix = contentRaw.substring(PREFIX.length()).trim();
+        String[] args = WHITESPACES_PATTERN.split(contentWithoutPrefix);
+
         TextChannel channel = event.getChannel();
         
-        String command = args[0].toLowerCase();  // args will never be empty
+        String command = args[0].toLowerCase();  // args will never be empty due to the impl of split
         if (command.isEmpty())  {
             return;
         }
 
-        LOGGER.debug("Command: " + command);
+        LOGGER.debug("Command: {}", command);
         if (command.equals("ping"))  {
             channel.sendMessage("Pong!")
                 .queue();  // IMPORTANT - .queue is needed when request is made
@@ -87,9 +89,7 @@ public class BotListener extends ListenerAdapter {
         
         Message message = event.getMessage();
         
-        String logMsg = String.format("[MESSAGE EDIT] %s",
-                message.getContentRaw());
-        LOGGER.info(logMsg);
+        LOGGER.info("[MESSAGE EDIT] {}", message.getContentRaw());
     }
     
     @Override
@@ -98,9 +98,7 @@ public class BotListener extends ListenerAdapter {
         
         TextChannel channel = event.getChannel();
         long msgId = event.getMessageIdLong();
-        String logMsg = String.format("Message with Id %d was deleted from %s",
-                msgId, channel.getName());
-        LOGGER.info(logMsg);
+        LOGGER.info("Message with Id {} was deleted from {}", msgId, channel.getName());
     }
     
     @Override
@@ -112,9 +110,7 @@ public class BotListener extends ListenerAdapter {
         boolean isEmoji = reaction.isEmoji();  // default emojis like :D
         boolean isEmote = reaction.isEmote();  // emote = custom emoji, is bound to a server
         
-        String logMsg = String.format("%s reacted to Message with Id %d",
-                member.getUser().getAsTag(), msgId);
-        LOGGER.info(logMsg);
+        LOGGER.info("{} reacted to Message with Id {}", member.getUser().getAsTag(), msgId);
     }
     
     
@@ -122,9 +118,7 @@ public class BotListener extends ListenerAdapter {
     public void onGuildMessageReactionRemove(GuildMessageReactionRemoveEvent event) {
         // Same as above
         
-        String logMsg = String.format("%s removed reaction from Message with Id %d",
-                event.getUser().getAsTag(), event.getMessageIdLong());
-        LOGGER.info(logMsg);
+        LOGGER.info("{} removed reaction from Message with Id {}", event.getUser().getAsTag(), event.getMessageIdLong());
     }
 
 }
