@@ -132,29 +132,36 @@ public class BotListener extends ListenerAdapter {
     }
 
     private void handlePasswordResponse(GuildMessageReceivedEvent userResponse) {
+        final TextChannel channel = userResponse.getChannel();
 
         Long targetChannelId = PASSWORD_TO_CHANNELS.get(userResponse.getMessage()
                 .getContentRaw());
 
         long channelId;
+        String responseMessage;
         if (targetChannelId == null) {
             channelId = FAIL_CHANNEL;
-            userResponse.getChannel().sendMessage("password incorrect!").queue();
-            userResponse.getGuild().getTextChannelById(FAIL_CHANNEL)
-                    .upsertPermissionOverride(userResponse.getMember()).setAllow(Permission.VIEW_CHANNEL);
-        }
-
-
-
-        else {
-            userResponse.getChannel().sendMessage("password correct, you have permission to enter the channel").queue();
+            responseMessage = "password incorrect!";
+        } else {
             channelId = targetChannelId;
+            responseMessage = "password correct, you have permission to enter the <#" + targetChannelId + ">";
         }
         TextChannel targetChannel = userResponse.getGuild().getTextChannelById(channelId);
 
-        if (targetChannel == null){
-            userResponse.getGuild().getOwner().getUser().openPrivateChannel()
+        if (targetChannel == null) {
+            userResponse.getGuild().getOwner().getUser().openPrivateChannel().queue(privateChannel -> {
+                privateChannel.sendMessage("Channel with id " + channelId + " does not exist anymore!").queue();
+            });
+
+            channel.sendMessage("Internal Server Error, please try again later.").queue();
+            return;
         }
+
+        targetChannel
+                .upsertPermissionOverride(userResponse.getMember())
+                .setAllow(Permission.VIEW_CHANNEL)
+                .queue();
+        channel.sendMessage(responseMessage).queue();
     }
 
     private void deleteChannel(GuildChannel passwordChannel, long timeoutValue, TimeUnit timeUnit) {
