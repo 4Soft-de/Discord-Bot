@@ -84,11 +84,13 @@ public class BotListener extends ListenerAdapter {
             });
         } else if (command.equals("secret"))  {
             final Category pwCategory = guild.getCategoryById(PASSWORD_CATEGORY_ID);
-            guild.createTextChannel("enter-the-password-secret", pwCategory)
+            guild.createTextChannel("enter-the-password-"+user.getName(), pwCategory)
                     .addRolePermissionOverride(guild.getPublicRole().getIdLong(),null, Collections.singletonList(Permission.VIEW_CHANNEL))
                     .addMemberPermissionOverride(user.getIdLong(), Collections.singletonList(Permission.VIEW_CHANNEL), null)
                     .addMemberPermissionOverride(selfUser.getIdLong(), Collections.singletonList(Permission.VIEW_CHANNEL), null)
-                    .queue();
+                    .queue(pwChannel -> {
+
+                    });
         } else if (command.equals("reset")) {
             Category category = guild.getCategoryById(PASSWORD_CATEGORY_ID);
             if (category != null) {
@@ -97,7 +99,7 @@ public class BotListener extends ListenerAdapter {
                     if (guild.getSelfMember().hasPermission(passwordChannel, Permission.VIEW_CHANNEL)) {
                         passwordChannel.delete().queue();
                     }
-                    passwordChannel.delete().queue();
+
                 });
             }
         }
