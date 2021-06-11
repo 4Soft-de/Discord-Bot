@@ -1,6 +1,8 @@
 package de.foursoft.discordbot;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
@@ -26,13 +28,18 @@ public class BotListener extends ListenerAdapter {
     private static final String THUMBS_UP_UNICODE = "\uD83D\uDC4D";
 
     private static final long PASSWORD_CATEGORY_ID = 852893820983050240L;
+    private static final long FAIL_CHANNEL = 852912833024491520L;
 
-    private static final String PASSWORD = "1234";
+
+    private static final Map<String, Long> PASSWORD_TO_CHANNELS = new HashMap<>();
 
     private final EventWaiter eventWaiter;
 
     public BotListener(EventWaiter eventWaiter) {
         this.eventWaiter = eventWaiter;
+
+        PASSWORD_TO_CHANNELS.put("1234", 852912770969370624L);
+        PASSWORD_TO_CHANNELS.put("1337", 852912856814845962L);
     }
 
     @Override
@@ -43,6 +50,7 @@ public class BotListener extends ListenerAdapter {
         Message message = event.getMessage();
         SelfUser selfUser = event.getJDA()
                 .getSelfUser();
+
 
         // Mentions will converted to ids, Markdown characters are included
         String contentRaw = message.getContentRaw();
@@ -124,9 +132,19 @@ public class BotListener extends ListenerAdapter {
     }
 
     private void handlePasswordResponse(GuildMessageReceivedEvent userResponse) {
-        if(userResponse.getMessage().getContentRaw().equals(PASSWORD)){
+
+        Long targetChannelId = PASSWORD_TO_CHANNELS.get(userResponse.getMessage()
+                .getContentRaw());
+
+        if (targetChannelId == null) {
+
+            userResponse.getGuild().getTextChannelById(FAIL_CHANNEL).upsertPermissionOverride(userResponse.getMember()).setAllow(Permission.VIEW_CHANNEL);
+        }
+        if(userResponse.getMessage().getContentRaw().equals(SUPER_SECRET_PASSWORD)){
             userResponse.getChannel().sendMessage("password correct, you have permission to enter the channel");
-        }else {
+        } if else (userResponse.getMessage().getContentRaw().equals(SUPER_SECRET_PASSWORD))
+
+        else {
             userResponse.getChannel().sendMessage("password incorrect!");
         }
     }
