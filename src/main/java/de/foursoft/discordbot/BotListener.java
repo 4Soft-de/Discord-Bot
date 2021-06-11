@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.MessageReaction.ReactionEmote;
@@ -82,8 +83,12 @@ public class BotListener extends ListenerAdapter {
         } else if (command.equals("secret"))  {
             final Category pwCategory = guild.getCategoryById(PASSWORD_CATEGORY_ID);
             guild.createTextChannel("enter-the-password-secret", pwCategory)
+                    .addRolePermissionOverride(guild.getPublicRole().getIdLong(),null, Collections.singletonList(Permission.VIEW_CHANNEL))
                     .addMemberPermissionOverride(user.getIdLong(), Collections.singletonList(Permission.VIEW_CHANNEL), null)
+                    .addMemberPermissionOverride(, Collections.singletonList(Permission.VIEW_CHANNEL), null)
                     .queue();
+        } else if (command.equals("reset")) {
+            guild.getCategoryById(PASSWORD_CATEGORY_ID).getChannels().forEach(passwordChannel -> passwordChannel.delete().queue());
         }
 
     }
