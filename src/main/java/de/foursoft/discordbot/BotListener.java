@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
+import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
@@ -27,6 +28,12 @@ public class BotListener extends ListenerAdapter {
     private static final String THUMBS_UP_UNICODE = "\uD83D\uDC4D";
 
     private static final long PASSWORD_CATEGORY_ID = 852893820983050240L;
+
+    private final EventWaiter eventWaiter;
+
+    public BotListener(EventWaiter eventWaiter) {
+        this.eventWaiter = eventWaiter;
+    }
 
     @Override
     public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
@@ -89,7 +96,15 @@ public class BotListener extends ListenerAdapter {
                     .addMemberPermissionOverride(user.getIdLong(), Collections.singletonList(Permission.VIEW_CHANNEL), null)
                     .addMemberPermissionOverride(selfUser.getIdLong(), Collections.singletonList(Permission.VIEW_CHANNEL), null)
                     .queue(pwChannel -> {
-
+                        eventWaiter.waitForEvent(GuildMessageReceivedEvent.class,
+                                userResponse -> userResponse.getAuthor().equals(user) &&
+                                        userResponse.getChannel().equals(pwChannel),
+                                userResponse -> {
+                                    System.out.println("Response: " + userResponse.getMessage().getContentRaw());
+                                },
+                                1, TimeUnit.MINUTES, () -> {
+                                    System.out.println("Timeout");
+                                });
                     });
         } else if (command.equals("reset")) {
             Category category = guild.getCategoryById(PASSWORD_CATEGORY_ID);

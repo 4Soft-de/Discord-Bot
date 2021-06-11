@@ -2,6 +2,7 @@ package de.foursoft.discordbot;
 
 import javax.security.auth.login.LoginException;
 
+import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -15,6 +16,8 @@ public class FourSoftDiscordBot {
     private static final Logger LOGGER = LoggerFactory.getLogger(FourSoftDiscordBot.class);
     
     private final JDA discordApi;
+
+    private final EventWaiter eventWaiter = new EventWaiter();
        
     public FourSoftDiscordBot() {
         Configuration config = new Configuration("config.properties");
@@ -28,7 +31,8 @@ public class FourSoftDiscordBot {
                                 GatewayIntent.GUILD_PRESENCES  // access to online status and activities
                          )  
                         .setMemberCachePolicy(MemberCachePolicy.ALL)  // always cache members
-                        .addEventListeners(new BotListener())  // enable the class to receive events
+                        .addEventListeners(new BotListener(eventWaiter))  // enable the class to receive events
+                        .addEventListeners(eventWaiter)  // waits for events
                         .build().awaitReady();  // wait until the API is ready
         } catch (LoginException e) {
             LOGGER.error("Could not start the Bot, invalid Token!");
