@@ -34,6 +34,8 @@ public class BotListener extends ListenerAdapter {
         Guild guild = event.getGuild();  // guild = server
         Member member = event.getMember();  // member = user in guild, can have roles
         Message message = event.getMessage();
+        SelfUser selfUser = event.getJDA()
+                .getSelfUser();
 
         // Mentions will converted to ids, Markdown characters are included
         String contentRaw = message.getContentRaw();
@@ -85,10 +87,19 @@ public class BotListener extends ListenerAdapter {
             guild.createTextChannel("enter-the-password-secret", pwCategory)
                     .addRolePermissionOverride(guild.getPublicRole().getIdLong(),null, Collections.singletonList(Permission.VIEW_CHANNEL))
                     .addMemberPermissionOverride(user.getIdLong(), Collections.singletonList(Permission.VIEW_CHANNEL), null)
-                    .addMemberPermissionOverride(, Collections.singletonList(Permission.VIEW_CHANNEL), null)
+                    .addMemberPermissionOverride(selfUser.getIdLong(), Collections.singletonList(Permission.VIEW_CHANNEL), null)
                     .queue();
         } else if (command.equals("reset")) {
-            guild.getCategoryById(PASSWORD_CATEGORY_ID).getChannels().forEach(passwordChannel -> passwordChannel.delete().queue());
+            Category category = guild.getCategoryById(PASSWORD_CATEGORY_ID);
+            if (category != null) {
+                category.getChannels().forEach(passwordChannel -> {
+
+                    if (guild.getSelfMember().hasPermission(passwordChannel, Permission.VIEW_CHANNEL)) {
+                        passwordChannel.delete().queue();
+                    }
+                    passwordChannel.delete().queue();
+                });
+            }
         }
 
     }
