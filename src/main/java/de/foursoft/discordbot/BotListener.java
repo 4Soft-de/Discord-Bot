@@ -136,16 +136,24 @@ public class BotListener extends ListenerAdapter {
         Long targetChannelId = PASSWORD_TO_CHANNELS.get(userResponse.getMessage()
                 .getContentRaw());
 
+        long channelId;
         if (targetChannelId == null) {
-
-            userResponse.getGuild().getTextChannelById(FAIL_CHANNEL).upsertPermissionOverride(userResponse.getMember()).setAllow(Permission.VIEW_CHANNEL);
+            channelId = FAIL_CHANNEL;
+            userResponse.getChannel().sendMessage("password incorrect!").queue();
+            userResponse.getGuild().getTextChannelById(FAIL_CHANNEL)
+                    .upsertPermissionOverride(userResponse.getMember()).setAllow(Permission.VIEW_CHANNEL);
         }
-        if(userResponse.getMessage().getContentRaw().equals(SUPER_SECRET_PASSWORD)){
-            userResponse.getChannel().sendMessage("password correct, you have permission to enter the channel");
-        } if else (userResponse.getMessage().getContentRaw().equals(SUPER_SECRET_PASSWORD))
+
+
 
         else {
-            userResponse.getChannel().sendMessage("password incorrect!");
+            userResponse.getChannel().sendMessage("password correct, you have permission to enter the channel").queue();
+            channelId = targetChannelId;
+        }
+        TextChannel targetChannel = userResponse.getGuild().getTextChannelById(channelId);
+
+        if (targetChannel == null){
+            userResponse.getGuild().getOwner().getUser().openPrivateChannel()
         }
     }
 
