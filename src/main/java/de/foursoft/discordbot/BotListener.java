@@ -1,14 +1,13 @@
 package de.foursoft.discordbot;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.MessageReaction.ReactionEmote;
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent;
@@ -22,32 +21,34 @@ public class BotListener extends ListenerAdapter {
 
     private static final Pattern WHITESPACES_PATTERN = Pattern.compile("\\s+");
     private static final Logger LOGGER = LoggerFactory.getLogger(BotListener.class);
-    
+
     private static final String PREFIX = "!";
     private static final String THUMBS_UP_UNICODE = "\uD83D\uDC4D";
-    
+
+    private static final long PASSWORD_CATEGORY_ID = 852893820983050240L;
+
     @Override
     public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
         User user = event.getAuthor();
         Guild guild = event.getGuild();  // guild = server
         Member member = event.getMember();  // member = user in guild, can have roles
         Message message = event.getMessage();
-        
-        // Mentions will be converted to ids, Markdown characters are included
+
+        // Mentions will converted to ids, Markdown characters are included
         String contentRaw = message.getContentRaw();
-        
+
         LOGGER.info("{}: {}", user.getAsTag(), contentRaw);
-        
+
         if (!contentRaw.startsWith(PREFIX))  {
             return;
         }
-        
+
         // split at whitespaces
         final String contentWithoutPrefix = contentRaw.substring(PREFIX.length()).trim();
         String[] args = WHITESPACES_PATTERN.split(contentWithoutPrefix);
 
         TextChannel channel = event.getChannel();
-        
+
         String command = args[0].toLowerCase();  // args will never be empty due to the impl of split
         if (command.isEmpty())  {
             return;
@@ -56,7 +57,7 @@ public class BotListener extends ListenerAdapter {
         LOGGER.debug("Command: {}", command);
         if (command.equals("ping"))  {
             channel.sendMessage("Pong!")
-                .queue();  // IMPORTANT - .queue is needed when request is made
+                    .queue();  // IMPORTANT - .queue is needed when request is made
         }  else if (command.equals("react"))  {
             message.addReaction(THUMBS_UP_UNICODE).queue(success -> {
                 LOGGER.debug("Reaction worked!");
@@ -77,47 +78,52 @@ public class BotListener extends ListenerAdapter {
                 }, failure -> {
                     channel.sendMessage("Couldn't sent you a DM. :(").queue();
                 });
-            });            
+            });
+        } else if (command.equals("secret"))  {
+            final Category pwCategory = guild.getCategoryById(PASSWORD_CATEGORY_ID);
+            guild.createTextChannel("enter-the-password-secret", pwCategory)
+                    .addMemberPermissionOverride(user.getIdLong(), Collections.singletonList(Permission.VIEW_CHANNEL), null)
+                    .queue();
         }
-        
+
     }
-    
+
     @Override
     public void onGuildMessageUpdate(GuildMessageUpdateEvent event) {
         // means a message was edited or (un)pinned
         // NOTE: Previous Content / State is not provided by the API
-        
+
         Message message = event.getMessage();
-        
+
         LOGGER.info("[MESSAGE EDIT] {}", message.getContentRaw());
     }
-    
+
     @Override
     public void onGuildMessageDelete(GuildMessageDeleteEvent event) {
         // NOTE: Message Content / State is not provided by the API
-        
+
         TextChannel channel = event.getChannel();
         long msgId = event.getMessageIdLong();
         LOGGER.info("Message with Id {} was deleted from {}", msgId, channel.getName());
     }
-    
+
     @Override
     public void onGuildMessageReactionAdd(GuildMessageReactionAddEvent event) {
         Member member = event.getMember();
         long msgId = event.getMessageIdLong();
         ReactionEmote reaction = event.getReactionEmote();  // can be emoji or emote
-        
+
         boolean isEmoji = reaction.isEmoji();  // default emojis like :D
         boolean isEmote = reaction.isEmote();  // emote = custom emoji, is bound to a server
-        
+
         LOGGER.info("{} reacted to Message with Id {}", member.getUser().getAsTag(), msgId);
     }
-    
-    
+
+
     @Override
     public void onGuildMessageReactionRemove(GuildMessageReactionRemoveEvent event) {
         // Same as above
-        
+
         LOGGER.info("{} removed reaction from Message with Id {}", event.getUser().getAsTag(), event.getMessageIdLong());
     }
 
