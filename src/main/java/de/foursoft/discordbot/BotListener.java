@@ -33,7 +33,7 @@ public class BotListener extends ListenerAdapter {
         Member member = event.getMember();  // member = user in guild, can have roles
         Message message = event.getMessage();
         
-        // Mentions will converted to ids, Markdown characters are included
+        // Mentions will be converted to ids, Markdown characters are included
         String contentRaw = message.getContentRaw();
         
         LOGGER.info("{}: {}", user.getAsTag(), contentRaw);
