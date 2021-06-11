@@ -1,12 +1,10 @@
 package de.foursoft.discordbot;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.MessageReaction.ReactionEmote;
@@ -28,6 +26,8 @@ public class BotListener extends ListenerAdapter {
     private static final String THUMBS_UP_UNICODE = "\uD83D\uDC4D";
 
     private static final long PASSWORD_CATEGORY_ID = 852893820983050240L;
+
+    private static final String PASSWORD = "1234";
 
     private final EventWaiter eventWaiter;
 
@@ -100,10 +100,12 @@ public class BotListener extends ListenerAdapter {
                                 userResponse -> userResponse.getAuthor().equals(user) &&
                                         userResponse.getChannel().equals(pwChannel),
                                 userResponse -> {
-                                    System.out.println("Response: " + userResponse.getMessage().getContentRaw());
+
+                                    handlePasswordResponse(userResponse);
+                                    deleteChannel(pwChannel, 1, TimeUnit.MINUTES);
                                 },
                                 1, TimeUnit.MINUTES, () -> {
-                                    System.out.println("Timeout");
+                                    deleteChannel(pwChannel);
                                 });
                     });
         } else if (command.equals("reset")) {
@@ -112,13 +114,29 @@ public class BotListener extends ListenerAdapter {
                 category.getChannels().forEach(passwordChannel -> {
 
                     if (guild.getSelfMember().hasPermission(passwordChannel, Permission.VIEW_CHANNEL)) {
-                        passwordChannel.delete().queue();
+                        deleteChannel(passwordChannel);
                     }
 
                 });
             }
         }
 
+    }
+
+    private void handlePasswordResponse(GuildMessageReceivedEvent userResponse) {
+        if(userResponse.getMessage().getContentRaw().equals(PASSWORD)){
+            userResponse.getChannel().sendMessage("password correct, you have permission to enter the channel");
+        }else {
+            userResponse.getChannel().sendMessage("password incorrect!");
+        }
+    }
+
+    private void deleteChannel(GuildChannel passwordChannel, long timeoutValue, TimeUnit timeUnit) {
+        passwordChannel.delete().queueAfter(timeoutValue, timeUnit);
+    }
+
+    private void deleteChannel(GuildChannel passwordChannel) {
+       deleteChannel(passwordChannel, 0, TimeUnit.MILLISECONDS);
     }
 
     @Override
