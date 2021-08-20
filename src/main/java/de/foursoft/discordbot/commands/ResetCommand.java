@@ -7,16 +7,17 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Category;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import org.springframework.stereotype.Component;
 
+@Component
 public class ResetCommand extends GuildMessageReceivedCommand {
 
-	@Override
 	public String getName() {
 		return "reset";
 	}
 
 	@Override
-	public void execute(GuildMessageReceivedEvent event) {
+	public void doExecute(GuildMessageReceivedEvent event) {
 		Guild guild = event.getGuild();
 
 		Category category = guild.getCategoryById(PASSWORD_CATEGORY_ID);

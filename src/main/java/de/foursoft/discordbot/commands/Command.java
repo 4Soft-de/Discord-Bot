@@ -4,7 +4,7 @@ import net.dv8tion.jda.api.events.Event;
 
 public abstract class Command<T extends Event> {
 
-    public abstract String getName();
+    public abstract Class<T> getClassOfT();
 
     public abstract void execute(T event);
 }

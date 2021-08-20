@@ -3,10 +3,12 @@ package de.foursoft.discordbot.listener;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.function.Consumer;
 
+@Component
 public class DadListener implements Consumer<GuildMessageReceivedEvent> {
 
     private static final Set<String> VALID_KEY_PHRASES;

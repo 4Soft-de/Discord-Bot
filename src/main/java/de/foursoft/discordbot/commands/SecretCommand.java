@@ -7,15 +7,19 @@ import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+@Component
 public class SecretCommand extends GuildMessageReceivedCommand {
     private static final Map<String, Long> PASSWORD_TO_CHANNELS = new HashMap<>();
+
     private static final long FAIL_CHANNEL = 852912833024491520L;
+
     private final EventWaiter eventWaiter;
 
     {
@@ -27,13 +31,12 @@ public class SecretCommand extends GuildMessageReceivedCommand {
         this.eventWaiter = eventWaiter;
     }
 
-    @Override
     public String getName() {
         return "secret";
     }
 
     @Override
-    public void execute(GuildMessageReceivedEvent event) {
+    public void doExecute(GuildMessageReceivedEvent event) {
         Guild guild = event.getGuild();
         User user = event.getAuthor();
         SelfUser selfUser = event.getJDA().getSelfUser();
