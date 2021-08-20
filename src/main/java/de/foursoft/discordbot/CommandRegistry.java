@@ -15,8 +15,7 @@ public class CommandRegistry {
         return this;
     }
 
-    public Command<? extends Event> getCommand(String name)  {
-        return commands.get(name);
+    public <T extends Event> Command<T> getCommand(String name)  {
+        return (Command<T>)commands.get(name);
     }
-
 }

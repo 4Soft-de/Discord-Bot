@@ -12,6 +12,7 @@ import de.foursoft.discordbot.listener.DadListener;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.MessageReaction.ReactionEmote;
+import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent;
@@ -27,7 +28,6 @@ public class BotListener extends ListenerAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger(BotListener.class);
 
     private static final String PREFIX = "!";
-    private static final String THUMBS_UP_UNICODE = "\uD83D\uDC4D";
 
     private static final long PASSWORD_CATEGORY_ID = 852893820983050240L;
     private static final long FAIL_CHANNEL = 852912833024491520L;
@@ -84,7 +84,7 @@ public class BotListener extends ListenerAdapter {
             return;
         }
 
-        final Command cmd = commandRegistry.getCommand(userCommand);
+        final Command<GuildMessageReceivedEvent> cmd = commandRegistry.getCommand(userCommand);
         if (cmd == null)  {
             return;
         }
@@ -95,13 +95,7 @@ public class BotListener extends ListenerAdapter {
 
 
         LOGGER.debug("Command: {}", userCommand);
-        if (userCommand.equals("react"))  {
-            message.addReaction(THUMBS_UP_UNICODE).queue(success -> {
-                LOGGER.debug("Reaction worked!");
-            }, failure -> {
-                LOGGER.error("Reaction failed!", failure);
-            });
-        }  else if (userCommand.equals("edit"))  {
+        if (userCommand.equals("edit"))  {
             channel.sendMessage("I will edit the message in 5 seconds!").queue(sentMessage -> {
                 sentMessage.editMessage("New Content!").queueAfter(5, TimeUnit.SECONDS);
             }, failure -> {

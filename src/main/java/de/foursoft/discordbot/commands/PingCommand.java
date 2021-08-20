@@ -2,7 +2,7 @@ package de.foursoft.discordbot.commands;
 
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
-public class PingCommand extends Command<GuildMessageReceivedEvent> {
+public class PingCommand extends GuildMessageReceivedCommand {
     @Override
     public String getName() {
         return "ping";
