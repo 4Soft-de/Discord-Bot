@@ -1,6 +1,5 @@
-package de.foursoft.discordbot.commands;
+package de.foursoft.discordbot.eventconsumer;
 
-import de.foursoft.discordbot.listener.DadListener;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
@@ -9,15 +8,12 @@ import org.slf4j.LoggerFactory;
 
 import java.util.regex.Pattern;
 
-public abstract class GuildMessageReceivedCommand extends Command<GuildMessageReceivedEvent> {
+public abstract class GuildMessageReceivedEventConsumer extends EventConsumer<GuildMessageReceivedEvent> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GuildMessageReceivedCommand.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GuildMessageReceivedEventConsumer.class);
 
     private static final Pattern WHITESPACES_PATTERN = Pattern.compile("\\s+");
-
     private static final String PREFIX = "!";
-
-    public abstract String getName();
 
     @Override
     public void execute(GuildMessageReceivedEvent event) {
@@ -29,9 +25,6 @@ public abstract class GuildMessageReceivedCommand extends Command<GuildMessageRe
         String contentRaw = message.getContentRaw();
 
         LOGGER.info("{}: {}", user.getAsTag(), contentRaw);
-
-        //TODO insert into generic event dispatcher
-        new DadListener().accept(event);
 
         if (!contentRaw.startsWith(PREFIX)) {
             return;
@@ -51,6 +44,8 @@ public abstract class GuildMessageReceivedCommand extends Command<GuildMessageRe
         }
 
     }
+
+    protected abstract String getName();
 
     protected abstract void doExecute(GuildMessageReceivedEvent event);
 

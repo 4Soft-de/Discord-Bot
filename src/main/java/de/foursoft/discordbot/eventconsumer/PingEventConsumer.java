@@ -1,10 +1,10 @@
-package de.foursoft.discordbot.commands;
+package de.foursoft.discordbot.eventconsumer;
 
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import org.springframework.stereotype.Component;
 
 @Component
-public class PingCommand extends GuildMessageReceivedCommand {
+public class PingEventConsumer extends GuildMessageReceivedEventConsumer {
 
     public String getName() {
         return "ping";

@@ -1,8 +1,8 @@
-package de.foursoft.discordbot.commands;
+package de.foursoft.discordbot.eventconsumer;
 
 import net.dv8tion.jda.api.events.Event;
 
-public abstract class Command<T extends Event> {
+public abstract class EventConsumer<T extends Event> {
 
     public abstract Class<T> getClassOfT();
 

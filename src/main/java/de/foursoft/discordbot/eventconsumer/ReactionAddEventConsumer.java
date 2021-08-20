@@ -1,6 +1,5 @@
-package de.foursoft.discordbot.listener;
+package de.foursoft.discordbot.eventconsumer;
 
-import de.foursoft.discordbot.commands.Command;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
@@ -9,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ReactionAddEventConsumer extends Command<GuildMessageReactionAddEvent> {
+public class ReactionAddEventConsumer extends EventConsumer<GuildMessageReactionAddEvent> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ReactionAddEventConsumer.class);
 

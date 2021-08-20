@@ -1,4 +1,4 @@
-package de.foursoft.discordbot.commands;
+package de.foursoft.discordbot.eventconsumer;
 
 import static de.foursoft.discordbot.GuildUtilsAndConstantsAndOtherUsefulStuffAndShit.PASSWORD_CATEGORY_ID;
 import static de.foursoft.discordbot.GuildUtilsAndConstantsAndOtherUsefulStuffAndShit.deleteChannel;
@@ -10,7 +10,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ResetCommand extends GuildMessageReceivedCommand {
+public class ResetEventConsumer extends GuildMessageReceivedEventConsumer {
 
 	public String getName() {
 		return "reset";
