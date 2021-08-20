@@ -4,9 +4,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
+import de.foursoft.discordbot.listener.DadListener;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.MessageReaction.ReactionEmote;
@@ -30,6 +32,11 @@ public class BotListener extends ListenerAdapter {
     private static final long PASSWORD_CATEGORY_ID = 852893820983050240L;
     private static final long FAIL_CHANNEL = 852912833024491520L;
 
+//    private static final Map<Consumer>
+//
+//    static {
+//        MAP.put(ListenerAdapter::onStageInstanceDelete, DadListener.class);
+//    }
 
     private static final Map<String, Long> PASSWORD_TO_CHANNELS = new HashMap<>();
 
@@ -56,6 +63,9 @@ public class BotListener extends ListenerAdapter {
         String contentRaw = message.getContentRaw();
 
         LOGGER.info("{}: {}", user.getAsTag(), contentRaw);
+
+        //TODO insert into generic event dispatcher
+        new DadListener().accept(event);
 
         if (!contentRaw.startsWith(PREFIX))  {
             return;
