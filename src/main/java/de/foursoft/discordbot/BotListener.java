@@ -2,7 +2,6 @@ package de.foursoft.discordbot;
 
 import de.foursoft.discordbot.commands.Command;
 import de.foursoft.discordbot.listener.DadListener;
-import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.MessageReaction.ReactionEmote;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageDeleteEvent;
@@ -14,7 +13,6 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 public class BotListener extends ListenerAdapter {
@@ -24,14 +22,11 @@ public class BotListener extends ListenerAdapter {
 
     private static final String PREFIX = "!";
 
-    private static final long PASSWORD_CATEGORY_ID = 852893820983050240L;
-
 //    private static final Map<Consumer>
 //
 //    static {
 //        MAP.put(ListenerAdapter::onStageInstanceDelete, DadListener.class);
 //    }
-
 
     private final CommandRegistry commandRegistry;
 
@@ -42,7 +37,6 @@ public class BotListener extends ListenerAdapter {
     @Override
     public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
         User user = event.getAuthor();
-        Guild guild = event.getGuild();  // guild = server
         Message message = event.getMessage();
 
 
@@ -62,8 +56,6 @@ public class BotListener extends ListenerAdapter {
         final String contentWithoutPrefix = contentRaw.substring(PREFIX.length()).trim();
         String[] args = WHITESPACES_PATTERN.split(contentWithoutPrefix);
 
-        TextChannel channel = event.getChannel();
-
         String userCommand = args[0].toLowerCase();  // args will never be empty due to the impl of split
         if (userCommand.isEmpty()) {
             return;
@@ -76,48 +68,8 @@ public class BotListener extends ListenerAdapter {
 
         cmd.execute(event);
 
-        // Map<ping, new Ping()>
-
-
-        LOGGER.debug("Command: {}", userCommand);
-        if (userCommand.equals("edit")) {
-            channel.sendMessage("I will edit the message in 5 seconds!").queue(sentMessage -> {
-                sentMessage.editMessage("New Content!").queueAfter(5, TimeUnit.SECONDS);
-            }, failure -> {
-                LOGGER.error("Failed to send message!", failure);
-            });
-        } else if (userCommand.equals("dm")) {
-            // private channel needs to be opened
-            user.openPrivateChannel().queue(privateChannel -> {
-                privateChannel.sendMessage("helo").queue(dm -> {
-                    channel.sendMessage("Check your DMs. :)").queue();
-                }, failure -> {
-                    channel.sendMessage("Couldn't sent you a DM. :(").queue();
-                });
-            });
-        } else if (userCommand.equals("reset")) {
-            Category category = guild.getCategoryById(PASSWORD_CATEGORY_ID);
-            if (category != null) {
-                category.getChannels().forEach(passwordChannel -> {
-
-                    if (guild.getSelfMember().hasPermission(passwordChannel, Permission.VIEW_CHANNEL)) {
-                        deleteChannel(passwordChannel);
-                    }
-
-                });
-            }
-        }
-
     }
 
-
-    private void deleteChannel(GuildChannel passwordChannel, long timeoutValue, TimeUnit timeUnit) {
-        passwordChannel.delete().queueAfter(timeoutValue, timeUnit);
-    }
-
-    private void deleteChannel(GuildChannel passwordChannel) {
-        deleteChannel(passwordChannel, 0, TimeUnit.MILLISECONDS);
-    }
 
     @Override
     public void onGuildMessageUpdate(GuildMessageUpdateEvent event) {

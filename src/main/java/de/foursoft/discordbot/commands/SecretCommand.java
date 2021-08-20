@@ -1,5 +1,8 @@
 package de.foursoft.discordbot.commands;
 
+import static de.foursoft.discordbot.GuildUtilsAndConstantsAndOtherUsefulStuffAndShit.PASSWORD_CATEGORY_ID;
+import static de.foursoft.discordbot.GuildUtilsAndConstantsAndOtherUsefulStuffAndShit.deleteChannel;
+
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
@@ -11,7 +14,6 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class SecretCommand extends GuildMessageReceivedCommand {
-    private static final long PASSWORD_CATEGORY_ID = 852893820983050240L;
     private static final Map<String, Long> PASSWORD_TO_CHANNELS = new HashMap<>();
     private static final long FAIL_CHANNEL = 852912833024491520L;
     private final EventWaiter eventWaiter;
@@ -86,13 +88,5 @@ public class SecretCommand extends GuildMessageReceivedCommand {
                 .setAllow(Permission.VIEW_CHANNEL)
                 .queue();
         channel.sendMessage(responseMessage).queue();
-    }
-
-    private void deleteChannel(GuildChannel passwordChannel, long timeoutValue, TimeUnit timeUnit) {
-        passwordChannel.delete().queueAfter(timeoutValue, timeUnit);
-    }
-
-    private void deleteChannel(GuildChannel passwordChannel) {
-        deleteChannel(passwordChannel, 0, TimeUnit.MILLISECONDS);
     }
 }

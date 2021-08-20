@@ -3,6 +3,7 @@ package de.foursoft.discordbot;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import de.foursoft.discordbot.commands.PingCommand;
 import de.foursoft.discordbot.commands.ReactCommand;
+import de.foursoft.discordbot.commands.ResetCommand;
 import de.foursoft.discordbot.commands.SecretCommand;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -30,7 +31,8 @@ public class FourSoftDiscordBot {
         // init commands
         commandRegistry.addCommand("ping", new PingCommand())
                 .addCommand("react", new ReactCommand())
-                .addCommand("secret", new SecretCommand(eventWaiter));
+                .addCommand("secret", new SecretCommand(eventWaiter))
+                .addCommand("reset", new ResetCommand());
 
         JDA tmpJda = null;
         try {
