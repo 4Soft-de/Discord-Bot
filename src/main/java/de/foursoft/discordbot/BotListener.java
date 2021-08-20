@@ -8,6 +8,7 @@ import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
+import de.foursoft.discordbot.commands.Command;
 import de.foursoft.discordbot.listener.DadListener;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
@@ -41,9 +42,11 @@ public class BotListener extends ListenerAdapter {
     private static final Map<String, Long> PASSWORD_TO_CHANNELS = new HashMap<>();
 
     private final EventWaiter eventWaiter;
+    private final CommandRegistry commandRegistry;
 
-    public BotListener(EventWaiter eventWaiter) {
+    public BotListener(EventWaiter eventWaiter, CommandRegistry commandRegistry) {
         this.eventWaiter = eventWaiter;
+        this.commandRegistry = commandRegistry;
 
         PASSWORD_TO_CHANNELS.put("1234", 852912770969370624L);
         PASSWORD_TO_CHANNELS.put("1337", 852912856814845962L);
@@ -81,6 +84,16 @@ public class BotListener extends ListenerAdapter {
         if (command.isEmpty())  {
             return;
         }
+
+        final Command cmd = commandRegistry.getCommand(command);
+        if (cmd == null)  {
+            return;
+        }
+
+        cmd.execute(event);
+
+        // Map<ping, new Ping()>
+
 
         LOGGER.debug("Command: {}", command);
         if (command.equals("ping"))  {

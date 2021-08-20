@@ -3,6 +3,7 @@ package de.foursoft.discordbot;
 import javax.security.auth.login.LoginException;
 
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
+import de.foursoft.discordbot.commands.PingCommand;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -18,9 +19,14 @@ public class FourSoftDiscordBot {
     private final JDA discordApi;
 
     private final EventWaiter eventWaiter = new EventWaiter();
+
+    private final CommandRegistry commandRegistry = new CommandRegistry();
        
     public FourSoftDiscordBot() {
         Configuration config = new Configuration("config.properties");
+
+        // init commands
+        commandRegistry.addCommand("ping", new PingCommand());
         
         JDA tmpJda = null;
         try {
@@ -31,7 +37,7 @@ public class FourSoftDiscordBot {
                                 GatewayIntent.GUILD_PRESENCES  // access to online status and activities
                          )  
                         .setMemberCachePolicy(MemberCachePolicy.ALL)  // always cache members
-                        .addEventListeners(new BotListener(eventWaiter))  // enable the class to receive events
+                        .addEventListeners(new BotListener(eventWaiter, commandRegistry))  // enable the class to receive events
                         .addEventListeners(eventWaiter)  // waits for events
                         .build().awaitReady();  // wait until the API is ready
         } catch (LoginException e) {
