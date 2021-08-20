@@ -1,6 +1,5 @@
 package de.foursoft.discordbot.commands;
 
-import de.foursoft.discordbot.FourSoftDiscordBot;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import org.slf4j.Logger;
@@ -13,7 +12,7 @@ public class ReactCommand extends GuildMessageReceivedCommand {
 
     @Override
     public String getName() {
-        return null;
+        return "react";
     }
 
     @Override

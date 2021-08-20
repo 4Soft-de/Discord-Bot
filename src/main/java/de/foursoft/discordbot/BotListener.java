@@ -1,18 +1,10 @@
 package de.foursoft.discordbot;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
-
-import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import de.foursoft.discordbot.commands.Command;
 import de.foursoft.discordbot.listener.DadListener;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.MessageReaction.ReactionEmote;
-import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent;
@@ -22,6 +14,9 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
+
 public class BotListener extends ListenerAdapter {
 
     private static final Pattern WHITESPACES_PATTERN = Pattern.compile("\\s+");
@@ -30,7 +25,6 @@ public class BotListener extends ListenerAdapter {
     private static final String PREFIX = "!";
 
     private static final long PASSWORD_CATEGORY_ID = 852893820983050240L;
-    private static final long FAIL_CHANNEL = 852912833024491520L;
 
 //    private static final Map<Consumer>
 //
@@ -38,27 +32,18 @@ public class BotListener extends ListenerAdapter {
 //        MAP.put(ListenerAdapter::onStageInstanceDelete, DadListener.class);
 //    }
 
-    private static final Map<String, Long> PASSWORD_TO_CHANNELS = new HashMap<>();
 
-    private final EventWaiter eventWaiter;
     private final CommandRegistry commandRegistry;
 
-    public BotListener(EventWaiter eventWaiter, CommandRegistry commandRegistry) {
-        this.eventWaiter = eventWaiter;
+    public BotListener(CommandRegistry commandRegistry) {
         this.commandRegistry = commandRegistry;
-
-        PASSWORD_TO_CHANNELS.put("1234", 852912770969370624L);
-        PASSWORD_TO_CHANNELS.put("1337", 852912856814845962L);
     }
 
     @Override
     public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
         User user = event.getAuthor();
         Guild guild = event.getGuild();  // guild = server
-        Member member = event.getMember();  // member = user in guild, can have roles
         Message message = event.getMessage();
-        SelfUser selfUser = event.getJDA()
-                .getSelfUser();
 
 
         // Mentions will converted to ids, Markdown characters are included
@@ -69,7 +54,7 @@ public class BotListener extends ListenerAdapter {
         //TODO insert into generic event dispatcher
         new DadListener().accept(event);
 
-        if (!contentRaw.startsWith(PREFIX))  {
+        if (!contentRaw.startsWith(PREFIX)) {
             return;
         }
 
@@ -80,12 +65,12 @@ public class BotListener extends ListenerAdapter {
         TextChannel channel = event.getChannel();
 
         String userCommand = args[0].toLowerCase();  // args will never be empty due to the impl of split
-        if (userCommand.isEmpty())  {
+        if (userCommand.isEmpty()) {
             return;
         }
 
         final Command<GuildMessageReceivedEvent> cmd = commandRegistry.getCommand(userCommand);
-        if (cmd == null)  {
+        if (cmd == null) {
             return;
         }
 
@@ -95,13 +80,13 @@ public class BotListener extends ListenerAdapter {
 
 
         LOGGER.debug("Command: {}", userCommand);
-        if (userCommand.equals("edit"))  {
+        if (userCommand.equals("edit")) {
             channel.sendMessage("I will edit the message in 5 seconds!").queue(sentMessage -> {
                 sentMessage.editMessage("New Content!").queueAfter(5, TimeUnit.SECONDS);
             }, failure -> {
                 LOGGER.error("Failed to send message!", failure);
             });
-        }  else if (userCommand.equals("dm"))  {
+        } else if (userCommand.equals("dm")) {
             // private channel needs to be opened
             user.openPrivateChannel().queue(privateChannel -> {
                 privateChannel.sendMessage("helo").queue(dm -> {
@@ -110,25 +95,6 @@ public class BotListener extends ListenerAdapter {
                     channel.sendMessage("Couldn't sent you a DM. :(").queue();
                 });
             });
-        } else if (userCommand.equals("secret"))  {
-            final Category pwCategory = guild.getCategoryById(PASSWORD_CATEGORY_ID);
-            guild.createTextChannel("enter-the-password-"+user.getName(), pwCategory)
-                    .addRolePermissionOverride(guild.getPublicRole().getIdLong(),null, Collections.singletonList(Permission.VIEW_CHANNEL))
-                    .addMemberPermissionOverride(user.getIdLong(), Collections.singletonList(Permission.VIEW_CHANNEL), null)
-                    .addMemberPermissionOverride(selfUser.getIdLong(), Collections.singletonList(Permission.VIEW_CHANNEL), null)
-                    .queue(pwChannel -> {
-                        eventWaiter.waitForEvent(GuildMessageReceivedEvent.class,
-                                userResponse -> userResponse.getAuthor().equals(user) &&
-                                        userResponse.getChannel().equals(pwChannel),
-                                userResponse -> {
-
-                                    handlePasswordResponse(userResponse);
-                                    deleteChannel(pwChannel, 1, TimeUnit.MINUTES);
-                                },
-                                1, TimeUnit.MINUTES, () -> {
-                                    deleteChannel(pwChannel);
-                                });
-                    });
         } else if (userCommand.equals("reset")) {
             Category category = guild.getCategoryById(PASSWORD_CATEGORY_ID);
             if (category != null) {
@@ -144,45 +110,13 @@ public class BotListener extends ListenerAdapter {
 
     }
 
-    private void handlePasswordResponse(GuildMessageReceivedEvent userResponse) {
-        final TextChannel channel = userResponse.getChannel();
-
-        Long targetChannelId = PASSWORD_TO_CHANNELS.get(userResponse.getMessage()
-                .getContentRaw());
-
-        long channelId;
-        String responseMessage;
-        if (targetChannelId == null) {
-            channelId = FAIL_CHANNEL;
-            responseMessage = "password incorrect!";
-        } else {
-            channelId = targetChannelId;
-            responseMessage = "password correct, you have permission to enter the <#" + targetChannelId + ">";
-        }
-        TextChannel targetChannel = userResponse.getGuild().getTextChannelById(channelId);
-
-        if (targetChannel == null) {
-            userResponse.getGuild().getOwner().getUser().openPrivateChannel().queue(privateChannel -> {
-                privateChannel.sendMessage("Channel with id " + channelId + " does not exist anymore!").queue();
-            });
-
-            channel.sendMessage("Internal Server Error, please try again later.").queue();
-            return;
-        }
-
-        targetChannel
-                .upsertPermissionOverride(userResponse.getMember())
-                .setAllow(Permission.VIEW_CHANNEL)
-                .queue();
-        channel.sendMessage(responseMessage).queue();
-    }
 
     private void deleteChannel(GuildChannel passwordChannel, long timeoutValue, TimeUnit timeUnit) {
         passwordChannel.delete().queueAfter(timeoutValue, timeUnit);
     }
 
     private void deleteChannel(GuildChannel passwordChannel) {
-       deleteChannel(passwordChannel, 0, TimeUnit.MILLISECONDS);
+        deleteChannel(passwordChannel, 0, TimeUnit.MILLISECONDS);
     }
 
     @Override
