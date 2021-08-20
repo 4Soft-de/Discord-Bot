@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
@@ -80,12 +79,12 @@ public class BotListener extends ListenerAdapter {
 
         TextChannel channel = event.getChannel();
 
-        String command = args[0].toLowerCase();  // args will never be empty due to the impl of split
-        if (command.isEmpty())  {
+        String userCommand = args[0].toLowerCase();  // args will never be empty due to the impl of split
+        if (userCommand.isEmpty())  {
             return;
         }
 
-        final Command cmd = commandRegistry.getCommand(command);
+        final Command cmd = commandRegistry.getCommand(userCommand);
         if (cmd == null)  {
             return;
         }
@@ -95,23 +94,20 @@ public class BotListener extends ListenerAdapter {
         // Map<ping, new Ping()>
 
 
-        LOGGER.debug("Command: {}", command);
-        if (command.equals("ping"))  {
-            channel.sendMessage("Pong!")
-                    .queue();  // IMPORTANT - .queue is needed when request is made
-        }  else if (command.equals("react"))  {
+        LOGGER.debug("Command: {}", userCommand);
+        if (userCommand.equals("react"))  {
             message.addReaction(THUMBS_UP_UNICODE).queue(success -> {
                 LOGGER.debug("Reaction worked!");
             }, failure -> {
                 LOGGER.error("Reaction failed!", failure);
             });
-        }  else if (command.equals("edit"))  {
+        }  else if (userCommand.equals("edit"))  {
             channel.sendMessage("I will edit the message in 5 seconds!").queue(sentMessage -> {
                 sentMessage.editMessage("New Content!").queueAfter(5, TimeUnit.SECONDS);
             }, failure -> {
                 LOGGER.error("Failed to send message!", failure);
             });
-        }  else if (command.equals("dm"))  {
+        }  else if (userCommand.equals("dm"))  {
             // private channel needs to be opened
             user.openPrivateChannel().queue(privateChannel -> {
                 privateChannel.sendMessage("helo").queue(dm -> {
@@ -120,7 +116,7 @@ public class BotListener extends ListenerAdapter {
                     channel.sendMessage("Couldn't sent you a DM. :(").queue();
                 });
             });
-        } else if (command.equals("secret"))  {
+        } else if (userCommand.equals("secret"))  {
             final Category pwCategory = guild.getCategoryById(PASSWORD_CATEGORY_ID);
             guild.createTextChannel("enter-the-password-"+user.getName(), pwCategory)
                     .addRolePermissionOverride(guild.getPublicRole().getIdLong(),null, Collections.singletonList(Permission.VIEW_CHANNEL))
@@ -139,7 +135,7 @@ public class BotListener extends ListenerAdapter {
                                     deleteChannel(pwChannel);
                                 });
                     });
-        } else if (command.equals("reset")) {
+        } else if (userCommand.equals("reset")) {
             Category category = guild.getCategoryById(PASSWORD_CATEGORY_ID);
             if (category != null) {
                 category.getChannels().forEach(passwordChannel -> {
