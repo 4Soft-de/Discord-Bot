@@ -1,13 +1,14 @@
-package de.foursoft.discordbot.listener;
+package de.foursoft.discordbot.eventconsumer;
 
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
-import java.util.function.Consumer;
 
-public class DadListener implements Consumer<GuildMessageReceivedEvent> {
+@Component
+public class DadEventConsumer extends EventConsumer<GuildMessageReceivedEvent> {
 
     private static final Set<String> VALID_KEY_PHRASES;
 
@@ -20,7 +21,12 @@ public class DadListener implements Consumer<GuildMessageReceivedEvent> {
     }
 
     @Override
-    public void accept(GuildMessageReceivedEvent event) {
+    public Class<GuildMessageReceivedEvent> getClassOfT() {
+        return GuildMessageReceivedEvent.class;
+    }
+
+    @Override
+    public void execute(GuildMessageReceivedEvent event) {
         Message message = event.getMessage();
         String contentRaw = message.getContentRaw();
 
