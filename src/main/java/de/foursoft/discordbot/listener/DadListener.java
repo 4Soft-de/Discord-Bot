@@ -31,7 +31,6 @@ public class DadListener implements Consumer<GuildMessageReceivedEvent> {
 
         if (VALID_KEY_PHRASES.stream().anyMatch(command::startsWith))  {
 
-
             Optional<String> optionalName = VALID_KEY_PHRASES.stream()
                     .filter(command::startsWith)
                     .map(c -> command.replace(c, ""))
@@ -39,7 +38,7 @@ public class DadListener implements Consumer<GuildMessageReceivedEvent> {
 
             optionalName.ifPresent(name -> {
                 TextChannel channel = event.getChannel();
-                channel.sendMessage("Hi " + name)
+                channel.sendMessage("Hi " + name.trim() + ", I'm dad")
                         .queue();  // IMPORTANT - .queue is needed when request is made
             });
         }

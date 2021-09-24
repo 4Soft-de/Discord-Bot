@@ -25,6 +25,7 @@ dependencies {
     }
     implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
     implementation 'com.jagrosh:jda-utilities:3.0.5'
+    implementation 'org.mockito:mockito-all:1.10.19'
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.8.1'
 }
 
