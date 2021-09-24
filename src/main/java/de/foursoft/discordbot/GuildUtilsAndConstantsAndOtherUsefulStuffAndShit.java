@@ -3,6 +3,8 @@ package de.foursoft.discordbot;
 import java.util.concurrent.TimeUnit;
 
 import net.dv8tion.jda.api.entities.GuildChannel;
+import net.dv8tion.jda.api.exceptions.ErrorHandler;
+import net.dv8tion.jda.api.requests.ErrorResponse;
 
 public final class GuildUtilsAndConstantsAndOtherUsefulStuffAndShit {
 
@@ -17,7 +19,7 @@ public final class GuildUtilsAndConstantsAndOtherUsefulStuffAndShit {
 	}
 
 	public static void deleteChannel(GuildChannel passwordChannel, long timeoutValue, TimeUnit timeUnit) {
-		passwordChannel.delete().queueAfter(timeoutValue, timeUnit);
+		passwordChannel.delete().queueAfter(timeoutValue, timeUnit, null, new ErrorHandler().ignore(ErrorResponse.UNKNOWN_CHANNEL));
 	}
 
 }
