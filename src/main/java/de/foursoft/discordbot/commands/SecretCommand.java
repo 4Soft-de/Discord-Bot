@@ -44,7 +44,7 @@ public class SecretCommand extends GuildMessageReceivedCommand {
                 .addMemberPermissionOverride(user.getIdLong(), Collections.singletonList(Permission.VIEW_CHANNEL), null)
                 .addMemberPermissionOverride(selfUser.getIdLong(), Collections.singletonList(Permission.VIEW_CHANNEL), null)
                 .queue(pwChannel -> {
-                    final MessageAction messageAction = pwChannel.sendMessage(user.getAsMention());
+                    final MessageAction messageAction = pwChannel.sendMessage(user.getAsMention() + " enter your password and get rewarded!");
                     messageAction.queue();
 
                     eventWaiter.waitForEvent(GuildMessageReceivedEvent.class,
