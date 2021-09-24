@@ -7,6 +7,7 @@ import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -43,6 +44,9 @@ public class SecretCommand extends GuildMessageReceivedCommand {
                 .addMemberPermissionOverride(user.getIdLong(), Collections.singletonList(Permission.VIEW_CHANNEL), null)
                 .addMemberPermissionOverride(selfUser.getIdLong(), Collections.singletonList(Permission.VIEW_CHANNEL), null)
                 .queue(pwChannel -> {
+                    final MessageAction messageAction = pwChannel.sendMessage(user.getAsMention());
+                    messageAction.queue();
+
                     eventWaiter.waitForEvent(GuildMessageReceivedEvent.class,
                             userResponse -> userResponse.getAuthor().equals(user) &&
                                     userResponse.getChannel().equals(pwChannel),
