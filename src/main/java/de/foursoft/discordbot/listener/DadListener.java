@@ -29,11 +29,12 @@ public class DadListener implements Consumer<GuildMessageReceivedEvent> {
             return;
         }
 
-        if (VALID_KEY_PHRASES.stream().anyMatch(command::startsWith))  {
+        if (VALID_KEY_PHRASES.stream()
+                .anyMatch(keyPhrase -> command.startsWith(keyPhrase + " ")))  {
 
             Optional<String> optionalName = VALID_KEY_PHRASES.stream()
                     .filter(command::startsWith)
-                    .map(c -> command.replace(c, ""))
+                    .map(c -> command.replaceFirst(c, ""))
                     .findFirst();
 
             optionalName.ifPresent(name -> {
